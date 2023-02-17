@@ -5,21 +5,25 @@
 import static qupath.lib.gui.scripting.QPEx.*
 import qupath.lib.objects.classes.PathClass
 
-setChannelNames(
-        'DAPI',
-        'SMA',
-        'CD31',
-        'MYH11/NG2',
-        'EpCAM',
-)
+static void main(String[] args) {
+    def log = getLogger()
 
-def server = getCurrentServer()
-def project = getProject()
-def channels = server.getMetadata().getChannels()
+    if (args.length == 0){
+        log.error("[-] SetChannelName: no channel names were given")
+        return
+    }
 
-List<PathClass> pathClasses = new ArrayList<>()
-channels.each {
-    pathClasses.add(getPathClass(it.getName()))
+    setChannelNames(args)
+
+    def server = getCurrentServer()
+    def project = getProject()
+    def channels = server.getMetadata().getChannels()
+
+    List<PathClass> pathClasses = new ArrayList<>()
+    channels.each {
+        pathClasses.add(getPathClass(it.getName()))
+    }
+    project.setPathClasses(pathClasses)
+    project.syncChanges()
 }
-project.setPathClasses(pathClasses)
-project.syncChanges()
+
