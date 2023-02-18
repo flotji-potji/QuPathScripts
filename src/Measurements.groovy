@@ -40,15 +40,21 @@ class Measurements {
         }
 
         detectionsList.forEach {
+            log.info('[*] ' + this.name + ': Adding shape measurements...')
             setShapeMeasurements(it as Collection<PathObject>)
+            log.info('[+] ' + this.name + ': added shape measurements')
+            log.info('[*] ' + this.name + ': Adding approx diameter...')
             calculateApproxDiameter(it as Collection<PathObject>)
+            log.info('[+] ' + this.name + ': added approx diameter measurements')
         }
 
         if (detectionsList.size() == 2) {
+            log.info('[*] ' + this.name + ': Adding intersection ratio...')
             calculateIntersectionRatio(
                     detectionsList.get(0) as Collection<PathObject>,
                     detectionsList.get(1) as Collection<PathObject>
             )
+            log.info('[+] ' + this.name + ': added intersection ratio')
         }
     }
 
@@ -58,7 +64,6 @@ class Measurements {
         for (def object1 in detections1) {
             def oList1 = object1.getMeasurements()
             for (def object2 in detection2) {
-                def oList2 = object2.getMeasurements()
                 def oGeom1 = object1.getROI().getGeometry()
                 def oGeom2 = object2.getROI().getGeometry()
                 if (oGeom1.intersects(oGeom2)) {
@@ -102,5 +107,4 @@ class Measurements {
             )
         }
     }
-
 }

@@ -40,11 +40,14 @@ class Segmentation {
 
         populateVariables(args)
 
+        verbose ? log.info('[*] ' + this.name + ': Segmentation Process starting for ' + channel_to_segment + "...") : ""
+
         int selectedChannelNumber = channels.findIndexOf {
             it.name == channel_to_segment
         }
         def selectedChannel = server.getChannel(selectedChannelNumber)
 
+        verbose ? log.info('[*] ' + this.name + ': Calculating intensity values and threshold for ' + channel_to_segment + "...") : ""
         getIntensityOfChannel(channels, selectedChannel)
 
         double threshold = calculateThreshold(selectedChannel)
@@ -62,6 +65,7 @@ class Segmentation {
             server = ImageServers.pyramidalize(server, server.getDownsampleForResolution(resolution_level))
         }
 
+        verbose ? log.info('[*] ' + this.name + ': Creating detections...') : ""
         def thresholdServer = PixelClassifierTools.createThresholdServer(server, selectedChannelNumber, threshold, otherClass, channelClass)
         PixelClassifierTools.createDetectionsFromPixelClassifier(
                 hierarchy,
@@ -83,11 +87,13 @@ class Segmentation {
             toRemove.addAll(getDetectionObjects().findAll {
                 it.getMeasurements().find() {
                     it.getKey().contains('Mean')
-                }.getValue() >= 150
+                }.getValue() >= 100
             })
         }
 
         removeObjects(toRemove, false)
+
+        verbose ? log.info('[+] ' + this.name + ': Segmentation process for ' + channel_to_segment + ' finished') : ""
 
         getDetectionObjects().forEach {
             setSelectedObject(it)

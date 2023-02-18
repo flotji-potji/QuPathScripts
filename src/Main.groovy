@@ -12,8 +12,8 @@ File MEASUREMENTS_CLASS = new File("C:\\Users\\flori\\OneDrive - FH Technikum Wi
 def CHANNELS = [
         'DAPI'     : 2,
         'SMA'      : 2,
-        'CD31'     : 2,
-        'MYH11/NG2': 4,
+        'CD31'     : 1.5,
+        'MYH11/NG2': 5,
         'EpCAM'    : 2,
 ]
 String[] CHANNELS_TO_SEGMENT = [
@@ -47,16 +47,16 @@ for (def object in annotations) {
                 it,
                 CHANNELS.get(it).toString(),
                 RESOLUTION.toString(),
-                isChannelNoisy(CHANNELS, it),
+                "",
                 VERBOSE.toString()
         )
     }
-
+    VERBOSE ? log.info('[*] Measurements: Adding measurements for ' + object.getName() + ' starting...') : ""
     run(
             MEASUREMENTS_CLASS,
             CHANNELS_TO_SEGMENT
     )
-
+    VERBOSE ? log.info('[+] Measurements: Added measurements to ' + object.getName()) : ""
 }
 
 static String isChannelNoisy(Map<String, Integer> channels, String channel) {
