@@ -1,9 +1,11 @@
+import ch.qos.logback.classic.util.CopyOnInheritThreadLocal
 import org.locationtech.jts.geom.Geometry
 import qupath.lib.analysis.features.ObjectMeasurements
 import qupath.lib.objects.PathObject
 import qupath.lib.objects.classes.PathClass
 
 import java.nio.file.Path
+import java.util.concurrent.CopyOnWriteArrayList
 
 import static qupath.lib.scripting.QP.addShapeMeasurements
 import static qupath.lib.scripting.QP.getCurrentImageData
@@ -59,23 +61,35 @@ class Measurements {
     }
 
     static void calculateIntersectionRatio(
-            Collection<PathObject> detections1, Collection<PathObject> detection2) {
+            Collection<PathObject> detections1, Collection<PathObject> detections2) {
 
+        def resultSet = [
+                pathObject  : [] as CopyOnWriteArrayList,
+                measurements: [] as CopyOnWriteArrayList
+        ]
+
+        List<Thread> threads = []
         for (def object1 in detections1) {
-            def oList1 = object1.getMeasurements()
-            for (def object2 in detection2) {
-                def oGeom1 = object1.getROI().getGeometry()
-                def oGeom2 = object2.getROI().getGeometry()
-                if (oGeom1.intersects(oGeom2)) {
-                    Geometry intersection = oGeom1.intersection(oGeom2)
-                    double object1Ratio = intersection.getArea() / oGeom1.getArea()
-                    double object2Ratio = intersection.getArea() / oGeom2.getArea()
-                    oList1.put('Area Ratio of Intersection/' + object1.getPathClass(),
-                            object1Ratio)
-                    oList1.put('Area Ratio of Intersection/' + object2.getPathClass(),
-                            object2Ratio)
+
+            threads << Thread.start {
+                for (def object2 in detections2) {
+                    def oGeom1 = object1.getROI().getGeometry()
+                    def oGeom2 = object2.getROI().getGeometry()
+                    if (oGeom1.intersects(oGeom2)) {
+                        Geometry intersection = oGeom1.intersection(oGeom2)
+                        double object1Ratio = intersection.getArea() / oGeom1.getArea()
+                        resultSet.pathObject.add(object1)
+                        resultSet.measurements.add(object1Ratio)
+                    }
                 }
             }
+        }
+
+        getLogger().info(resultSet.pathObject.size() + "")
+        resultSet.pathObject.eachWithIndex{ def entry, int i ->
+            entry = entry as PathObject
+            entry.getMeasurements().put('Area Ratio of Intersection/' + detections1[0].getPathClass(),
+                    resultSet.measurements.get(i) as double)
         }
     }
 
