@@ -1,5 +1,6 @@
 import ch.qos.logback.classic.util.CopyOnInheritThreadLocal
 import org.locationtech.jts.geom.Geometry
+import org.locationtech.jts.index.quadtree.Quadtree
 import qupath.lib.analysis.features.ObjectMeasurements
 import qupath.lib.objects.PathObject
 import qupath.lib.objects.classes.PathClass
@@ -63,33 +64,27 @@ class Measurements {
     static void calculateIntersectionRatio(
             Collection<PathObject> detections1, Collection<PathObject> detections2) {
 
-        def resultSet = [
-                pathObject  : [] as CopyOnWriteArrayList,
-                measurements: [] as CopyOnWriteArrayList
-        ]
+        Quadtree qt = new Quadtree()
+        for (def detection in detections1)
+            qt.insert(detection.getROI().getGeometry().getEnvelopeInternal(), detection.getROI().getGeometry())
 
-        List<Thread> threads = []
-        for (def object1 in detections1) {
-
-            threads << Thread.start {
-                for (def object2 in detections2) {
-                    def oGeom1 = object1.getROI().getGeometry()
-                    def oGeom2 = object2.getROI().getGeometry()
-                    if (oGeom1.intersects(oGeom2)) {
-                        Geometry intersection = oGeom1.intersection(oGeom2)
-                        double object1Ratio = intersection.getArea() / oGeom1.getArea()
-                        resultSet.pathObject.add(object1)
-                        resultSet.measurements.add(object1Ratio)
+        for (def detection in detections2) {
+            List<Object> result = qt.query(detection.getROI().getGeometry().getEnvelopeInternal())
+            detection.getMeasurements().put("Total Coverage Area Ratio of intersection", 0)
+            if (result) {
+                for (def r in result) {
+                    if (detection.getROI().getGeometry().intersects(r as Geometry)) {
+                        def detection1 = detections1.find() {
+                            (it.getROI().getGeometry() == r)
+                        }
+                        def intersection = detection.getROI().getGeometry().intersection(detection1.getROI().getGeometry())
+                        double intersectionRatioDetection1 = intersection.getArea() / detection1.getROI().getGeometry().getArea()
+                        double intersectionRatioDetection2 = intersection.getArea() / detection.getROI().getGeometry().getArea()
+                        detection1.getMeasurements().put("Area Ratio of Intersection/" + detections1[0].getPathClass(), intersectionRatioDetection1)
+                        detection.getMeasurements().put("Total Coverage Area Ratio of intersection", detection.getMeasurements().get("Total Coverage Area Ratio of intersection") + intersectionRatioDetection2)
                     }
                 }
             }
-        }
-
-        getLogger().info(resultSet.pathObject.size() + "")
-        resultSet.pathObject.eachWithIndex{ def entry, int i ->
-            entry = entry as PathObject
-            entry.getMeasurements().put('Area Ratio of Intersection/' + detections1[0].getPathClass(),
-                    resultSet.measurements.get(i) as double)
         }
     }
 

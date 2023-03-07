@@ -41,22 +41,24 @@ for (def object in annotations) {
 
     setSelectedObject(object)
 
-    CHANNELS_TO_SEGMENT.toList().forEach {
+    if (!object.hasChildObjects()) {
+        CHANNELS_TO_SEGMENT.toList().forEach {
+            run(
+                    SEGMENTATION_CLASS,
+                    it,
+                    CHANNELS.get(it).toString(),
+                    RESOLUTION.toString(),
+                    "",
+                    VERBOSE.toString()
+            )
+        }
+        VERBOSE ? log.info('[*] Measurements: Adding measurements for ' + object.getName() + ' starting...') : ""
         run(
-                SEGMENTATION_CLASS,
-                it,
-                CHANNELS.get(it).toString(),
-                RESOLUTION.toString(),
-                "",
-                VERBOSE.toString()
+                MEASUREMENTS_CLASS,
+                CHANNELS_TO_SEGMENT
         )
+        VERBOSE ? log.info('[+] Measurements: Added measurements to ' + object.getName()) : ""
     }
-    VERBOSE ? log.info('[*] Measurements: Adding measurements for ' + object.getName() + ' starting...') : ""
-    run(
-            MEASUREMENTS_CLASS,
-            CHANNELS_TO_SEGMENT
-    )
-    VERBOSE ? log.info('[+] Measurements: Added measurements to ' + object.getName()) : ""
 }
 
 static String isChannelNoisy(Map<String, Integer> channels, String channel) {
