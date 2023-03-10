@@ -13,7 +13,7 @@ def CHANNELS = [
         'DAPI'     : 2,
         'SMA'      : 2,
         'CD31'     : 1.5,
-        'MYH11/NG2': 5,
+        'MYH11/NG2': 2,
         'EpCAM'    : 2,
 ]
 String[] CHANNELS_TO_SEGMENT = [
@@ -51,6 +51,7 @@ for (def object in annotations) {
                     "",
                     VERBOSE.toString()
             )
+            setSelectedObject(object)
         }
         VERBOSE ? log.info('[*] Measurements: Adding measurements for ' + object.getName() + ' starting...') : ""
         run(

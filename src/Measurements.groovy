@@ -54,8 +54,8 @@ class Measurements {
         if (detectionsList.size() == 2) {
             log.info('[*] ' + this.name + ': Adding intersection ratio...')
             calculateIntersectionRatio(
-                    detectionsList.get(0) as Collection<PathObject>,
-                    detectionsList.get(1) as Collection<PathObject>
+                    detectionsList.get(1) as Collection<PathObject>,
+                    detectionsList.get(0) as Collection<PathObject>
             )
             log.info('[+] ' + this.name + ': added intersection ratio')
         }

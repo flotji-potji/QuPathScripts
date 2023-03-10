@@ -95,11 +95,11 @@ class Segmentation {
 
         verbose ? log.info('[+] ' + this.name + ': Segmentation process for ' + channel_to_segment + ' finished') : ""
 
-        getDetectionObjects().forEach {
+        /*getDetectionObjects().forEach {
             setSelectedObject(it)
             deleteIntensityMeasurements(selectedChannel)
             setSelectedObject(it.getParent())
-        }
+        }*/
     }
 
     static boolean populateVariables(String[] args) {
