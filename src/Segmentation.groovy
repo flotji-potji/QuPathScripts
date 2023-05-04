@@ -3,6 +3,7 @@ import qupath.lib.images.servers.ImageServers
 import qupath.opencv.ml.pixel.PixelClassifierTools
 
 import static qupath.lib.gui.scripting.QPEx.runPlugin
+import static qupath.lib.scripting.QP.getAllObjects
 import static qupath.lib.scripting.QP.getCurrentHierarchy
 import static qupath.lib.scripting.QP.getCurrentServer
 import static qupath.lib.scripting.QP.getDetectionObjects
@@ -21,8 +22,9 @@ class Segmentation {
     static String channel_to_segment
     static double k = 1
     static int resolution_level = 0
-    static boolean verbose = false
     static boolean noisyChannel = false
+    static boolean verbose = false
+    static boolean split = false
 
     static void main(String[] args) {
         def server = getCurrentServer()
@@ -67,14 +69,23 @@ class Segmentation {
 
         verbose ? log.info('[*] ' + this.name + ': Creating detections...') : ""
         def thresholdServer = PixelClassifierTools.createThresholdServer(server, selectedChannelNumber, threshold, otherClass, channelClass)
-        PixelClassifierTools.createDetectionsFromPixelClassifier(
-                hierarchy,
-                thresholdServer,
-                10,
-                0,
-                PixelClassifierTools.CreateObjectOptions.SPLIT
-        )
-        def toRemove = getDetectionObjects().findAll {
+        if (split) {
+            PixelClassifierTools.createDetectionsFromPixelClassifier(
+                    hierarchy,
+                    thresholdServer,
+                    15,
+                    0,
+                    PixelClassifierTools.CreateObjectOptions.SPLIT
+            )
+        } else {
+            PixelClassifierTools.createAnnotationsFromPixelClassifier(
+                    hierarchy,
+                    thresholdServer,
+                    15,
+                    0
+            )
+        }
+        def toRemove = getAllObjects().findAll {
             it.getPathClass() == otherClass
         }
 
@@ -95,11 +106,6 @@ class Segmentation {
 
         verbose ? log.info('[+] ' + this.name + ': Segmentation process for ' + channel_to_segment + ' finished') : ""
 
-        /*getDetectionObjects().forEach {
-            setSelectedObject(it)
-            deleteIntensityMeasurements(selectedChannel)
-            setSelectedObject(it.getParent())
-        }*/
     }
 
     static boolean populateVariables(String[] args) {
@@ -129,6 +135,9 @@ class Segmentation {
         if (args.length >= 5 && !args[4].isEmpty()) {
             verbose = true
         }
+        if (args.length >= 6 && !args[5].isEmpty()) {
+            split = true
+        }
         return true
     }
 
@@ -156,7 +165,7 @@ class Segmentation {
         runPlugin(
                 'qupath.lib.algorithms.IntensityFeaturesPlugin',
                 '{' +
-                        '"pixelSizeMicrons":2.0,' +
+                        '"pixelSizeMicrons":0.5,' +
                         '"region":"ROI",' +
                         '"tileSizeMicrons":25.0,' +
                         channelBuilder +
