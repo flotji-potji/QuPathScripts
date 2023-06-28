@@ -7,7 +7,7 @@ import qupath.lib.roi.interfaces.ROI
 import static qupath.lib.gui.scripting.QPEx.*
 
 def path = "C:\\Users\\flori\\OneDrive - FH Technikum Wien\\LU project\\QuPathScripts\\M253\\src\\"
-File CHANNEL_NAME_CLASS = new File(path + "SetChannelNames.groovy")
+File CHANNEL_NAME_CLASS = new File(path + "Setup.groovy")
 File SEGMENTATION_CLASS = new File(path + "Segmentation.groovy")
 File MEASUREMENTS_CLASS = new File(path + "Measurements.groovy")
 def CHANNELS = [

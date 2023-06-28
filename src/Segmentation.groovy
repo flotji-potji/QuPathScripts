@@ -41,11 +41,7 @@ class Segmentation {
     static double tiledThreshold = 0.0
     static double cutoff = 1.5
 
-    static void printMan(){
-        print("Print man!")
-    }
-
-    void main(String[] args) {
+    static void main(String[] args) {
         def server = getCurrentServer()
         def hierarchy = getCurrentHierarchy()
         def log = getLogger()

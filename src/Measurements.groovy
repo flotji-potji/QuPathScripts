@@ -149,14 +149,31 @@ class Measurements {
                         def geometrieList = it.stream().map { it.getROI().getGeometry() }.collect(Collectors.toList())
                         def geom = geometrieList[0]
                         for (int i = 1; i < geometrieList.size(); i++) {
+
                             geom.union(geometrieList[i])
                         }
                         return geom
                     }.collect(Collectors.toList())
                     calculateIntersections(originObject, groupedNeighborUnion[1], groupedNeighborUnion[0], object, R)
+                } else {
+                    queryResults.forEach {
+                        if (it.getROI().getGeometry().intersects(originObject.getROI().getGeometry())) {
+                            calculateIntersections(originObject, it.getROI().getGeometry(), it.getROI().getGeometry(), object, R)
+                        }
+                    }
                 }
             }
         }
+    }
+
+    static Collection<Collection<PathObject>> groupNeighbors(Collection<PathObject> neighbors, String[] neighborNames) {
+        def res = new ArrayList()
+        for (def neighbor in neighborNames) {
+            res.add(neighbors.findAll() {
+                it.getPathClass() == getPathClass(neighbor)
+            })
+        }
+        return res
     }
 
     static void calculateIntersections(PathObject vesselPO, Geometry pericyte, Geometry sma, PathObject object, double R) {
