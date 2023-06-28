@@ -6,9 +6,10 @@ import qupath.lib.roi.interfaces.ROI
 
 import static qupath.lib.gui.scripting.QPEx.*
 
-File CHANNEL_NAME_CLASS = new File("C:\\Users\\flori\\OneDrive - FH Technikum Wien\\LU project\\QuPathScripts\\M253\\src\\SetChannelNames.groovy")
-File SEGMENTATION_CLASS = new File("C:\\Users\\flori\\OneDrive - FH Technikum Wien\\LU project\\QuPathScripts\\M253\\src\\Segmentation.groovy")
-File MEASUREMENTS_CLASS = new File("C:\\Users\\flori\\OneDrive - FH Technikum Wien\\LU project\\QuPathScripts\\M253\\src\\Measurements.groovy")
+def path = "C:\\Users\\flori\\OneDrive - FH Technikum Wien\\LU project\\QuPathScripts\\M253\\src\\"
+File CHANNEL_NAME_CLASS = new File(path + "SetChannelNames.groovy")
+File SEGMENTATION_CLASS = new File(path + "Segmentation.groovy")
+File MEASUREMENTS_CLASS = new File(path + "Measurements.groovy")
 def CHANNELS = [
         'DAPI'     : 2,
         'SMA'      : 2,

@@ -4,14 +4,14 @@
 ### Quick Start Guide
 
 If no further adjustments are needed for quantification then only the script `Main.groovy` 
-has to be run. Just download the repository and head to QuPath:
+has to be run. Just download the repository and head to QuPath. Open either an already existing project or create a new one. Then do the following:
 - Go to `Automate > Shared scripts... > Set script directory...` and select the `src` folder in the zip you just downloaded.
 - Head again to `Automate > Shared scripts...`, there you now find the downloaded scripts. Select `Main.groovy`.
 - Now the correct file path to the used scripts have to be defined. 
   - The three variables `CHANNEL_NAME_CLASS`, `SEGMENTATION_CLASS` and `MEASUREMENTS_CLASS` have to be edited. 
   - Inside the parenthesis of `new File()` are the script paths defined.
   - Copy the file paths for each file. Be careful to use double backslashes \\\
-- Select ROIS/Annotations.
+- Select ROIs/AnnotationsObjectGraph.
 - Finally the script can be run and the selected area quantified.
 
 ### Content
@@ -30,7 +30,7 @@ processes behind creating the scripts, explaining used methodology, and other hi
 The knobs you have to turn to create a custom input are the following lines of code:
 
 ````groovy
-File CHANNEL_NAME_CLASS = new File("C:\\Users\\flori\\OneDrive - FH Technikum Wien\\LU project\\QuPathScripts\\M253\\src\\SetChannelNames.groovy")
+File CHANNEL_NAME_CLASS = new File("C:\\Users\\flori\\OneDrive - FH Technikum Wien\\LU project\\QuPathScripts\\M253\\src\\Setup.groovy")
 File SEGMENTATION_CLASS = new File("C:\\Users\\flori\\OneDrive - FH Technikum Wien\\LU project\\QuPathScripts\\M253\\src\\Segmentation.groovy")
 File MEASUREMENTS_CLASS = new File("C:\\Users\\flori\\OneDrive - FH Technikum Wien\\LU project\\QuPathScripts\\M253\\src\\Measurements.groovy")
 def CHANNELS = [

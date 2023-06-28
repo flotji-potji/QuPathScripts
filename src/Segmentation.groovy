@@ -16,6 +16,19 @@ import static qupath.lib.scripting.QP.setSelectedObject
 /**
  * Created by Florian Schmidt on 16 Feb 2023.
  */
+/*
+def CHANNELS = [
+        'DAPI'     : 2,
+        'SMA'      : 2,
+        'CD31'     : 2,
+        'MYH11/NG2': 3.5,
+        'EpCAM'    : 2,
+]
+String[] CHANNELS_TO_SEGMENT = [
+        'CD31',
+        'SMA',
+        'MYH11/NG2'
+]*/
 class Segmentation {
 
     // use higher K for channels with more noise
@@ -25,8 +38,14 @@ class Segmentation {
     static boolean noisyChannel = false
     static boolean verbose = false
     static boolean split = false
+    static double tiledThreshold = 0.0
+    static double cutoff = 1.5
 
-    static void main(String[] args) {
+    static void printMan(){
+        print("Print man!")
+    }
+
+    void main(String[] args) {
         def server = getCurrentServer()
         def hierarchy = getCurrentHierarchy()
         def log = getLogger()
@@ -50,10 +69,14 @@ class Segmentation {
         def selectedChannel = server.getChannel(selectedChannelNumber)
 
         verbose ? log.info('[*] ' + this.name + ': Calculating intensity values and threshold for ' + channel_to_segment + "...") : ""
-        getIntensityOfChannel(channels, selectedChannel)
+        if (tiledThreshold == 0)
+            getIntensityOfChannel(channels, selectedChannel)
 
-        double threshold = calculateThreshold(selectedChannel)
-        log.info("[+] " + this.name +  ": Calculated threshold = " + Math.round(threshold))
+        /*if (getSelectedObject().getMeasurements().get("ROI: 0.50 µm per pixel: " + channel_to_segment + ": Std.dev.") < cutoff)
+            return*/
+
+        double threshold = tiledThreshold == 0 ? calculateThreshold(selectedChannel) : tiledThreshold
+        log.info("[+] " + this.name + ": Calculated threshold = " + Math.round(threshold))
 
         /**
          * following was adapted from:
@@ -137,6 +160,9 @@ class Segmentation {
         }
         if (args.length >= 6 && !args[5].isEmpty()) {
             split = true
+        }
+        if (args.length >= 7 && !args[6].isEmpty()) {
+            tiledThreshold = args[6] as double
         }
         return true
     }
